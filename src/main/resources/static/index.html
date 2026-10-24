@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ATS Resume Analyzer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            background:linear-gradient(135deg,#0f172a,#1e293b,#2563eb);
+            padding:40px;
+        }
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+        }
+
+        .title{
+            text-align:center;
+            color:white;
+            margin-bottom:40px;
+        }
+
+        .title h1{
+            font-size:50px;
+            margin-bottom:10px;
+        }
+
+        .title p{
+            color:#cbd5e1;
+            font-size:18px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:30px;
+        }
+
+        .card{
+            background:white;
+            border-radius:25px;
+            padding:30px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2{
+            margin-bottom:25px;
+            font-size:30px;
+            color:#111827;
+        }
+
+        .upload-box{
+            border:2px dashed #93c5fd;
+            border-radius:18px;
+            padding:30px;
+            background:#f8fafc;
+            margin-bottom:20px;
+        }
+
+        input[type="file"]{
+            width:100%;
+        }
+
+        textarea{
+            width:100%;
+            min-height:180px;
+            border:none;
+            outline:none;
+            background:#f1f5f9;
+            padding:18px;
+            border-radius:15px;
+            margin-bottom:20px;
+            resize:none;
+            font-size:15px;
+        }
+
+        button{
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(135deg,#2563eb,#1d4ed8);
+            color:white;
+            font-size:18px;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            transform:scale(1.02);
+        }
+
+        .loading{
+            margin-top:15px;
+            text-align:center;
+            color:#2563eb;
+            font-weight:600;
+        }
+
+        .result{
+            margin-top:25px;
+            background:linear-gradient(135deg,#020617,#0f172a);
+            border-radius:20px;
+            padding:25px;
+            min-height:300px;
+            overflow:auto;
+        }
+
+        .analysis-container{
+            color:white;
+        }
+
+        .top-score{
+            text-align:center;
+            margin-bottom:35px;
+        }
+
+        .score-circle{
+            width:140px;
+            height:140px;
+            border-radius:50%;
+            margin:auto;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:42px;
+            font-weight:bold;
+            margin-bottom:20px;
+            background:linear-gradient(135deg,#22c55e,#16a34a);
+            box-shadow:0 0 25px rgba(34,197,94,0.5);
+        }
+
+        .score-circle.ats{
+            background:linear-gradient(135deg,#2563eb,#1d4ed8);
+            box-shadow:0 0 25px rgba(37,99,235,0.5);
+        }
+
+        .top-score h2{
+            color:white;
+        }
+
+        .box{
+            margin-top:30px;
+        }
+
+        .box h3{
+            margin-bottom:18px;
+            color:#93c5fd;
+            font-size:24px;
+        }
+
+        .skills-container{
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+        }
+
+        .skill{
+            padding:10px 18px;
+            border-radius:30px;
+            background:#2563eb;
+            font-size:14px;
+            transition:0.3s;
+        }
+
+        .skill:hover{
+            transform:scale(1.08);
+        }
+
+        .matched{
+            background:#16a34a;
+        }
+
+        .missing{
+            background:#dc2626;
+        }
+
+        .improvement-card{
+            background:rgba(255,255,255,0.08);
+            padding:16px;
+            border-left:5px solid #3b82f6;
+            border-radius:12px;
+            margin-bottom:15px;
+            line-height:1.7;
+        }
+
+        .summary-box{
+            margin-top:30px;
+            background:rgba(255,255,255,0.08);
+            padding:20px;
+            border-radius:15px;
+        }
+
+        .summary-box h3{
+            margin-bottom:12px;
+            color:#93c5fd;
+        }
+
+        .summary-box p{
+            line-height:1.8;
+        }
+
+        @media(max-width:900px){
+
+            .grid{
+                grid-template-columns:1fr;
+            }
+
+            .title h1{
+                font-size:36px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">
+
+        <h1>ATS Resume Analyzer</h1>
+
+        <p>
+            Analyze your resume using AI and check ATS compatibility instantly
+        </p>
+
+    </div>
+
+    <div class="grid">
+
+        <!-- Resume Analysis -->
+
+        <div class="card">
+
+            <h2>Resume Analysis</h2>
+
+            <form id="resumeForm">
+
+                <div class="upload-box">
+
+                    <input type="file"
+                           id="resumeFile"
+                           required>
+
+                </div>
+
+                <button type="submit">
+                    Analyze Resume
+                </button>
+
+            </form>
+
+            <div class="loading" id="resumeLoading"></div>
+
+            <div class="result" id="resumeResult"></div>
+
+        </div>
+
+
+
+        <!-- ATS CHECK -->
+
+        <div class="card">
+
+            <h2>ATS Score Checker</h2>
+
+            <form id="atsForm">
+
+                <div class="upload-box">
+
+                    <input type="file"
+                           id="atsFile"
+                           required>
+
+                </div>
+
+                <textarea id="jobDescription"
+                          placeholder="Paste Job Description Here..."
+                          required></textarea>
+
+                <button type="submit">
+                    Check ATS Score
+                </button>
+
+            </form>
+
+            <div class="loading" id="atsLoading"></div>
+
+            <div class="result" id="atsResult"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // Resume Analysis
+
+    let resumeForm = document.querySelector("#resumeForm");
+
+    resumeForm.addEventListener("submit", async function(event){
+
+        event.preventDefault();
+
+        let fileInput = document.querySelector("#resumeFile");
+
+        let formData = new FormData();
+
+        formData.append("file", fileInput.files[0]);
+
+        document.querySelector("#resumeLoading").textContent =
+            "Analyzing Resume...";
+
+        try{
+
+            let response = await fetch(
+                "http://localhost:8080/api/resume/analyze",
+                {
+                    method:"POST",
+                    body:formData
+                }
+            );
+
+            let data = await response.json();
+
+            let result = JSON.parse(data.analysis);
+
+            document.querySelector("#resumeLoading").textContent = "";
+
+            document.querySelector("#resumeResult").innerHTML = `
+
+                <div class="analysis-container">
+
+                    <div class="top-score">
+
+                        <div class="score-circle">
+                            ${result.resumeQuality}/10
+                        </div>
+
+                        <h2>Resume Quality</h2>
+
+                    </div>
+
+                    <div class="box">
+
+                        <h3>Key Skills</h3>
+
+                        <div class="skills-container">
+
+                            ${result.keySkills.map(skill => `
+                                <span class="skill">${skill}</span>
+                            `).join("")}
+
+                        </div>
+
+                    </div>
+
+                    <div class="box">
+
+                        <h3>Suggested Improvements</h3>
+
+                        ${result.improvements.map(improvement => `
+
+                            <div class="improvement-card">
+                                ${improvement}
+                            </div>
+
+                        `).join("")}
+
+                    </div>
+
+                    <div class="summary-box">
+
+                        <h3>Professional Summary</h3>
+
+                        <p>${result.summary}</p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+        catch(error){
+
+            document.querySelector("#resumeLoading").textContent = "";
+
+            document.querySelector("#resumeResult").innerHTML =
+                "<h2 style='color:red'>Error Loading Result</h2>";
+
+        }
+
+    });
+
+
+
+
+
+    // ATS CHECKER
+
+    let atsForm = document.querySelector("#atsForm");
+
+    atsForm.addEventListener("submit", async function(event){
+
+        event.preventDefault();
+
+        let fileInput = document.querySelector("#atsFile");
+
+        let jd = document.querySelector("#jobDescription").value;
+
+        let formData = new FormData();
+
+        formData.append("file", fileInput.files[0]);
+
+        formData.append("jd", jd);
+
+        document.querySelector("#atsLoading").textContent =
+            "Checking ATS Compatibility...";
+
+        try{
+
+            let response = await fetch(
+                "http://localhost:8080/api/resume/ats-check",
+                {
+                    method:"POST",
+                    body:formData
+                }
+            );
+
+            let data = await response.json();
+
+            let result = JSON.parse(data.atsReport);
+
+            document.querySelector("#atsLoading").textContent = "";
+
+            document.querySelector("#atsResult").innerHTML = `
+
+                <div class="analysis-container">
+
+                    <div class="top-score">
+
+                        <div class="score-circle ats">
+                            ${result.atsScore}%
+                        </div>
+
+                        <h2>ATS Compatibility Score</h2>
+
+                    </div>
+
+                    <div class="box">
+
+                        <h3>Matched Keywords</h3>
+
+                        <div class="skills-container">
+
+                            ${result.matchedKeywords.map(skill => `
+
+                                <span class="skill matched">
+                                    ${skill}
+                                </span>
+
+                            `).join("")}
+
+                        </div>
+
+                    </div>
+
+                    <div class="box">
+
+                        <h3>Missing Keywords</h3>
+
+                        <div class="skills-container">
+
+                            ${result.missingKeywords.map(skill => `
+
+                                <span class="skill missing">
+                                    ${skill}
+                                </span>
+
+                            `).join("")}
+
+                        </div>
+
+                    </div>
+
+                    <div class="summary-box">
+
+                        <h3>ATS Summary</h3>
+
+                        <p>${result.summary}</p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+        catch(error){
+
+            document.querySelector("#atsLoading").textContent = "";
+
+            document.querySelector("#atsResult").innerHTML =
+                "<h2 style='color:red'>Error Loading ATS Result</h2>";
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
